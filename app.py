@@ -11,6 +11,7 @@ CORS(app)
 USUARIOS_PERMITIDOS = {
     "navidekennedy": "leonesmiesposo2026",
     "atajashe": "atajasheforever123"
+    "carlitaxcc": "elamordeatajasheyalicexd"
 }
 
 AUDIO_DIR = os.path.join(os.getcwd(), "audios")
