@@ -10,7 +10,7 @@ CORS(app)
 # Puedes cambiar las contraseñas aquí o añadir más usuarios
 USUARIOS_PERMITIDOS = {
     "navidekennedy": "leonesmiesposo2026",
-    "atajashe": "atajasheforever123"
+    "atajashe": "atajasheforever123",
     "carlitaxcc": "elamordeatajasheyalicexd"
 }
 
