@@ -5,39 +5,46 @@ import os
 import uuid
 
 app = Flask(__name__)
-CORS(app)
+# Permitir peticiones desde cualquier dominio (Netlify / OBS)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 AUDIO_DIR = "audios"
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
 # Usuarios permitidos y sus contraseñas
 USUARIOS_PERMITIDOS = {
-    "atajashe": "atajasheforever123",
-    "navidekennedy": "esposadeleon",
-    "carlitaxcc": "elamordealiyatajashexd"
+    "atajashe": "80101632",
+    "navidekennedy": "leonesmiesposo",
+    "carlitaxcc": "carlaisgood123"
 }
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home():
-    return "Servidor TTS Multiusuario para Starvios activo (Español México)"
+    return jsonify({"status": "active", "message": "Servidor TTS Starvios listo"})
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST', 'OPTIONS'])
 def login():
+    if request.method == 'OPTIONS':
+        return jsonify({"success": True}), 200
+        
     data = request.json or {}
-    usuario = data.get('usuario', '').strip().lower()
-    password = data.get('password', '').strip()
+    usuario = str(data.get('usuario', '')).strip().lower()
+    password = str(data.get('password', '')).strip()
 
     if usuario in USUARIOS_PERMITIDOS and USUARIOS_PERMITIDOS[usuario] == password:
         return jsonify({"success": True, "usuario": usuario})
     
-    return jsonify({"success": False, "error": "Credenciales inválidas"}), 401
+    return jsonify({"success": False, "error": "Credenciales incorrectas"}), 401
 
-@app.route('/tts', methods=['POST'])
+@app.route('/tts', methods=['POST', 'OPTIONS'])
 def generar_tts():
+    if request.method == 'OPTIONS':
+        return jsonify({"success": True}), 200
+
     data = request.json or {}
-    canal = data.get('canal', 'general').strip().lower()
-    usuario = data.get('usuario', 'Espectador').strip()
-    mensaje = data.get('mensaje', '').strip()
+    canal = str(data.get('canal', 'general')).strip().lower()
+    usuario = str(data.get('usuario', 'Espectador')).strip()
+    mensaje = str(data.get('mensaje', '')).strip()
 
     if not mensaje:
         return jsonify({"success": False, "error": "Mensaje vacío"}), 400
@@ -58,7 +65,7 @@ def generar_tts():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/audios/<filename>')
+@app.route('/audios/<filename>', methods=['GET'])
 def servir_audio(filename):
     return send_from_directory(AUDIO_DIR, filename)
 
