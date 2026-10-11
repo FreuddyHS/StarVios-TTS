@@ -7,14 +7,13 @@ import uuid
 app = Flask(__name__)
 CORS(app)
 
-# Carpeta para guardar los audios temporales
 AUDIO_DIR = "audios"
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
-# Diccionario de usuarios permitidos y sus contraseñas (puedes cambiar las contraseñas aquí)
+# Usuarios permitidos y sus contraseñas
 USUARIOS_PERMITIDOS = {
-    "atajashe": "atajasheforever",
-    "navidekennedy": "leonesmiesposo",
+    "atajashe": "atajasheforever123",
+    "navidekennedy": "esposadeleon",
     "carlitaxcc": "elamordealiyatajashexd"
 }
 
@@ -43,11 +42,9 @@ def generar_tts():
     if not mensaje:
         return jsonify({"success": False, "error": "Mensaje vacío"}), 400
 
-    # Texto que dirá la voz de Google (ej: "Atajashe dice: Hola")
     texto_voz = f"{usuario} dice: {mensaje}"
 
     try:
-        # Generar audio con gTTS en español de México (tld='com.mx')
         tts = gTTS(text=texto_voz, lang='es', tld='com.mx', slow=False)
         filename = f"audio_{uuid.uuid4().hex[:8]}.mp3"
         filepath = os.path.join(AUDIO_DIR, filename)
