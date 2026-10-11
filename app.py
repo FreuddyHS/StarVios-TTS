@@ -3,24 +3,24 @@ from flask_cors import CORS
 from gtts import gTTS
 import os
 import uuid
+import requests
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
-# Permitir peticiones desde cualquier dominio (Netlify / OBS)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 AUDIO_DIR = "audios"
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
-# Usuarios permitidos y sus contraseñas
 USUARIOS_PERMITIDOS = {
     "atajashe": "80101632",
-    "navidekennedy": "leonesmiesposo",
-    "carlitaxcc": "carlaisgood123"
+    "navidekennedy": "leonesmio",
+    "carlitaxcc": "carlamaracuchagod"
 }
 
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({"status": "active", "message": "Servidor TTS Starvios listo"})
+    return jsonify({"status": "active", "message": "Servidor TTS Starvios activo"})
 
 @app.route('/login', methods=['POST', 'OPTIONS'])
 def login():
@@ -35,6 +35,35 @@ def login():
         return jsonify({"success": True, "usuario": usuario})
     
     return jsonify({"success": False, "error": "Credenciales incorrectas"}), 401
+
+@app.route('/scrape-overlay', methods=['POST', 'OPTIONS'])
+def scrape_overlay():
+    if request.method == 'OPTIONS':
+        return jsonify({"success": True}), 200
+
+    data = request.json or {}
+    overlay_url = data.get('overlay', '').strip()
+
+    if not overlay_url or not overlay_url.startswith("http"):
+        return jsonify({"success": False, "error": "URL de overlay inválida"}), 400
+
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+        }
+        res = requests.get(overlay_url, headers=headers, timeout=5)
+        soup = BeautifulSoup(res.text, 'html.parser')
+
+        # Buscar elementos de chat dentro de la respuesta HTML
+        mensajes = []
+        for el in soup.find_all(['div', 'p', 'span']):
+            texto = el.get_text(strip=True)
+            if "@" in texto and len(texto) < 200:
+                mensajes.append(texto)
+
+        return jsonify({"success": True, "raw_messages": mensajes})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/tts', methods=['POST', 'OPTIONS'])
 def generar_tts():
